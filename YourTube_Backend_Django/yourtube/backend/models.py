@@ -16,9 +16,10 @@ class User(AbstractUser):
 class Video(models.Model):
     video_id = models.AutoField(primary_key=True)
     title = models.CharField(max_length=100)
+    uploaded_at = models.CharField(max_length=100,null=True,blank=True)
     channel_name = models.CharField(max_length=100)
-    likes = models.IntegerField(default=0)
-    views = models.IntegerField(default=0)
+    likes = models.CharField(max_length=100,null=True,blank=True)
+    views = models.CharField(max_length=100,null=True,blank=True)
     description = models.TextField()
     comments = models.JSONField(default=list, null=True,blank=True )
     video_category = models.CharField(max_length=100)

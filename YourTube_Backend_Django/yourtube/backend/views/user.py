@@ -4,6 +4,7 @@ from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+
 from backend.serializer import UserLoginSerializer, UserSerializer
 from backend.models import User
 
@@ -33,37 +34,46 @@ class LoginUserView(APIView):
                 user = User.objects.get(email=serializer.validated_data["email"])
                 if user.password == serializer.validated_data["password"]:
                     token, created = Token.objects.get_or_create(user=user)
-                    return Response({"success": True, "token": token.key})
+                    print(user.username)
+                    return Response({"success": True, "token": token.key, "userId":user.username})
                 else:
                     return Response({"success": False, "message": "incorrect password"})
             except ObjectDoesNotExist:
                 return Response({"success": False, "message": "user does not exist"})
-
+    
 class RetrieveUser(generics.RetrieveAPIView):
-    queryset = User.objects.all()
     serializer_class = UserSerializer
     authentication_classes = [CustomTokenAuthentication]
     permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        email = self.kwargs['email']  # or however you are passing the email parameter
+        try:
+            return User.objects.get(email=email)
+        except User.DoesNotExist:
+            raise ObjectDoesNotExist("User does not exist")
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
         return Response(self.get_serializer(instance).data)
 
 class UpdateUser(APIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
     authentication_classes = [CustomTokenAuthentication]
     permission_classes = [IsAuthenticated]
 
-    def put(self, request):
-        try:
-            user = User.objects.get(id=request.user.id)
-            serializer = UserSerializer(user, data=request.data, partial=True)
-            if serializer.is_valid():
-                serializer.save()
-                return Response({"success": True, "message": "user updated"})
-            else:
-                return Response({"success": False, "message": "error updating user"})
-        except ObjectDoesNotExist:
-            return Response({"success": False, "message": "user does not exist"})
+    def put(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)
+
+    def update(self, request, *args, **kwargs):
+        serializer = self.serializer_class(request.user, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({ "success": True, "message": "user updated" })
+        else:
+            print(serializer.errors)
+            return Response({ "success": False, "message": "error updating user" })
 
 class DestroyUser(generics.DestroyAPIView):
     authentication_classes = [CustomTokenAuthentication]

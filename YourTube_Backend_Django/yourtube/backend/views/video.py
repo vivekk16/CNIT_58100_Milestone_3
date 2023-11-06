@@ -1,9 +1,9 @@
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import generics
-from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.views import APIView
+from backend.views.user import CustomTokenAuthentication
+
 
 from backend.models import Video
 from backend.serializer import VideoSerializer
@@ -25,3 +25,5 @@ class RetrieveVideo(generics.RetrieveAPIView):
 class CreateVideo(generics.CreateAPIView):
     queryset = Video.objects.all()
     serializer_class = VideoSerializer
+    authentication_classes = [CustomTokenAuthentication]
+    permission_classes = [IsAuthenticated]
