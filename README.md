@@ -1,0 +1,2 @@
+## YourTube Web Application
+YourTube is a video management app that allows users to maintain separate profiles, toggle between "Entertainment" and "Information" modes, and manage personalized watchlists. The application uses React.js for the frontend, Django for the backend, and SQLite as the database. It integrates the TMDb API to fetch video recommendations, enabling users to add selected shows to their watchlists for easy content management.
